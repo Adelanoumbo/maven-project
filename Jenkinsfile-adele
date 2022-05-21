@@ -1,4 +1,3 @@
-
 pipeline {
     agent any
 
@@ -12,7 +11,7 @@ pipeline {
                           
 
                             string(
-                                defaultValue: '002', 
+                                defaultValue: '001', 
                                 name: 'ImageTAG', 
                                 trim: true
                             )
@@ -120,7 +119,7 @@ stage('build ') {
 
             steps {
                sh '''
-           docker build -t germaine05:$ImageTAG .
+           docker build -t devopseasylearning2021/adela05:$ImageTAG .
                '''
             }
         }
