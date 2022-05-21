@@ -1,7 +1,29 @@
+
 pipeline {
     agent any
 
     stages {
+        
+       stage('Setup parameters') {
+            steps {
+                script { 
+                    properties([
+                        parameters([
+                          
+
+                            string(
+                                defaultValue: '002', 
+                                name: 'Image-TAG', 
+                                trim: true
+                            )
+                        ])
+                    ])
+                }
+            }
+        }
+
+
+
 
         stage('clean') {
             agent {
@@ -98,7 +120,7 @@ stage('build ') {
 
             steps {
                sh '''
-           docker build -t germaine05:002 .
+           docker build -t germaine051:$Image-TAG .
                '''
             }
         }
