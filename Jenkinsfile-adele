@@ -13,7 +13,7 @@ pipeline {
 
                             string(
                                 defaultValue: '002', 
-                                name: 'Image-TAG', 
+                                name: 'ImageTAG', 
                                 trim: true
                             )
                         ])
@@ -120,7 +120,7 @@ stage('build ') {
 
             steps {
                sh '''
-           docker build -t germaine05:$Image-TAG .
+           docker build -t germaine05:$ImageTAG .
                '''
             }
         }
