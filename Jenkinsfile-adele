@@ -120,7 +120,7 @@ stage('build ') {
 
             steps {
                sh '''
-           docker build -t germaine051:$Image-TAG .
+           docker build -t germaine05:$Image-TAG .
                '''
             }
         }
