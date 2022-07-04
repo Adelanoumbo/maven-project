@@ -1,11 +1,23 @@
 pipeline {
-    agent { 
-        label 'docker-agent'
-         }
+    agent {
+    kubernetes {
+      yaml '''
+        apiVersion: v1
+        kind: Pod
+        spec:
+          containers:
+          - name: maven
+            image: maven:alpine
+            command:
+            - cat
+            tty: true
+        '''
+    }
+  }
    
-   environment {
-  DOCKERHUB_CREDENTIALS=credentials('dockerhub')
- }
+//    environment {
+//   DOCKERHUB_CREDENTIALS=credentials('dockerhub')
+//  }
 
     options { buildDiscarder(logRotator(artifactDaysToKeepStr: '',
      artifactNumToKeepStr: '', daysToKeepStr: '3', numToKeepStr: '5'))
@@ -14,31 +26,29 @@ pipeline {
 
     stages {
         
-       stage('Setup parameters') {
-            steps {
-                script { 
-                    properties([
-                        parameters([
+    //    stage('Setup parameters') {
+    //         steps {
+    //             script { 
+    //                 properties([
+    //                     parameters([
                           
 
-                            string(
-                                defaultValue: '001', 
-                                name: 'ImageTAG', 
-                                trim: true
-                            )
-                        ])
-                    ])
-                }
-            }
-        }
+    //                         string(
+    //                             defaultValue: '001', 
+    //                             name: 'ImageTAG', 
+    //                             trim: true
+    //                         )
+    //                     ])
+    //                 ])
+    //             }
+    //         }
+    //     }
 
 
 
 
         stage('clean') {
-            agent {
-                 docker { image 'maven:3.8.5-openjdk-8-slim' }
-             }
+            
 
             steps {
                sh '''
@@ -49,9 +59,6 @@ pipeline {
         }
 
         stage('compile') {
-            agent {
-                 docker { image 'maven:3.8.5-openjdk-8-slim' }
-             }
 
             steps {
                sh '''
@@ -61,9 +68,6 @@ pipeline {
         }
 
 stage('validate') {
-    agent {
-                 docker { image 'maven:3.8.5-openjdk-8-slim' }
-             }
 
             steps {
                sh '''
@@ -75,9 +79,6 @@ stage('validate') {
 
 
 stage('test') {
-    agent {
-                 docker { image 'maven:3.8.5-openjdk-8-slim' }
-             }
 
             steps {
                sh '''
@@ -93,14 +94,13 @@ stage('package') {
                sh '''
                ls -l
               mvn package
+              ls -la
                '''
             }
         }
 
 stage('verify') {
-    agent {
-                 docker { image 'maven:3.8.5-openjdk-8-slim' }
-             }
+    
 
             steps {
                sh '''
@@ -111,9 +111,6 @@ stage('verify') {
 
 
 stage('install') {
-    agent {
-                 docker { image 'maven:3.8.5-openjdk-8-slim' }
-             }
 
             steps {
                sh '''
@@ -122,68 +119,68 @@ stage('install') {
             }
         }
        
-       stage('SonarQube analysis') {
-            agent {
-                docker {
+    //    stage('SonarQube analysis') {
+    //         agent {
+    //             docker {
 
-                  image 'sonarsource/sonar-scanner-cli:4.7.0'
-                }
-               }
-               environment {
-        CI = 'true'
-        scannerHome='/opt/sonar-scanner'
-    }
-            steps{
-                withSonarQubeEnv('Sonar') {
-                    sh "${scannerHome}/bin/sonar-scanner"
-                }
-            }
-        }
+    //               image 'sonarsource/sonar-scanner-cli:4.7.0'
+    //             }
+    //            }
+    //            environment {
+    //     CI = 'true'
+    //     scannerHome='/opt/sonar-scanner'
+    // }
+    //         steps{
+    //             withSonarQubeEnv('Sonar') {
+    //                 sh "${scannerHome}/bin/sonar-scanner"
+    //             }
+    //         }
+    //     }
 
 
 
-stage('build ') {
+// stage('build ') {
 
-            steps {
-               sh '''
-           docker build -t devopseasylearning2021/adela05:$ImageTAG .
-               '''
-            }
-        }
+//             steps {
+//                sh '''
+//            docker build -t devopseasylearning2021/adela05:$ImageTAG .
+//                '''
+//             }
+//         }
        
 
 
 
 
 
-      stage('Docker Login') {
+//       stage('Docker Login') {
 
-   steps {
-    sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
-   }
-  }
+//    steps {
+//     sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
+//    }
+//   }
 
            
             
 
-     stage('Docker push ') {
-            steps {
-               sh '''
-              docker push devopseasylearning2021/adela05:$ImageTAG 
-                '''
-            }
-        }
+//      stage('Docker push ') {
+//             steps {
+//                sh '''
+//               docker push devopseasylearning2021/adela05:$ImageTAG 
+//                 '''
+//             }
+//         }
 
     
 
 
-    stage('Deploy with docker ') {
-            steps {
-               sh '''
-               docker run -d -p 1150:8080 devopseasylearning2021/adela05:$ImageTAG 
-                '''
-            }
-        }
+    // stage('Deploy with docker ') {
+    //         steps {
+    //            sh '''
+    //            docker run -d -p 1150:8080 devopseasylearning2021/adela05:$ImageTAG 
+    //             '''
+    //         }
+    //     }
 
 
 
